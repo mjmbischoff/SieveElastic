@@ -14,6 +14,10 @@ import java.util.concurrent.TimeUnit;
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 @State(Scope.Thread)
+@Fork(value = 4)
+@Warmup(iterations = 4, time = 5, timeUnit = TimeUnit.SECONDS)
+@Timeout(time = 15, timeUnit = TimeUnit.SECONDS)
+@Measurement(time = 5, timeUnit = TimeUnit.SECONDS)
 public class CacheInvalidateAllBenchmark {
 
     @Param({"100", "1000", "10000", "100000"})

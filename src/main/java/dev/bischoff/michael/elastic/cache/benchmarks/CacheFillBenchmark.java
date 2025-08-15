@@ -12,6 +12,10 @@ import java.util.function.ToLongBiFunction;
 
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
+@Fork(value = 4)
+@Warmup(iterations = 4, time = 5, timeUnit = TimeUnit.SECONDS)
+@Timeout(time = 15, timeUnit = TimeUnit.SECONDS)
+@Measurement(time = 5, timeUnit = TimeUnit.SECONDS)
 @State(Scope.Thread)
 public class CacheFillBenchmark {
 

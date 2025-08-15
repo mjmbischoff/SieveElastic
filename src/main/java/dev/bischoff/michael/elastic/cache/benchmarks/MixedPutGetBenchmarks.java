@@ -6,22 +6,18 @@ import dev.bischoff.michael.elastic.cache.ConcurrentHashMapWrapper;
 import dev.bischoff.michael.elastic.cache.SieveCache;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
-import org.openjdk.jmh.runner.Runner;
-import org.openjdk.jmh.runner.RunnerException;
-import org.openjdk.jmh.runner.options.OptionsBuilder;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 @BenchmarkMode({Mode.Throughput})
 @OutputTimeUnit(TimeUnit.SECONDS)
-@Fork(value = 3)
-@Warmup(iterations = 2)
-public class ConcurrentMixedPutGetBenchmarks {
+@Fork(value = 4)
+@Warmup(iterations = 4, time = 5, timeUnit = TimeUnit.SECONDS)
+@Timeout(time = 15, timeUnit = TimeUnit.SECONDS)
+@Measurement(time = 5, timeUnit = TimeUnit.SECONDS)
+public class MixedPutGetBenchmarks {
 
     public enum CacheType {
         LRU(() -> CacheBuilder.<String, String>builder().build()),
@@ -38,10 +34,12 @@ public class ConcurrentMixedPutGetBenchmarks {
         @Param({"LRU", "SIEVE", "CHM"})
         public String cacheTypeName;
 
-        protected Cache<String, String> cache;
         protected List<Map.Entry<String,String>> hotEntries;   // likely hits
         protected List<Map.Entry<String,String>> coldEntries;  // likely misses
+        protected Map<String, String> dataset;
+
         protected Random random;
+        protected Cache<String, String> cache;
 
         private final int datasetSize;
         private final int hotRatio; // percentage of keys that are hot
@@ -57,23 +55,26 @@ public class ConcurrentMixedPutGetBenchmarks {
         }
 
         @Setup(Level.Trial)
-        public void setup() {
-            random = new Random(12345);
-            cache = CacheType.valueOf(cacheTypeName).create();
+        public void setupBenchmark() {
+            Random random = new Random(12345);
 
             // Create dataset
-            Map<String, String> dataset = createDataset(datasetSize);
+            dataset = createDataset(datasetSize);
             hotEntries = new ArrayList<>(dataset.entrySet());
             Collections.shuffle(hotEntries, random);
-
-            // Hot set in cache
-            dataset.forEach(cache::put);
 
             // Cold keys (never seen before)
             coldEntries = new ArrayList<>();
             for (int i = 0; i < datasetSize; i++) {
                 coldEntries.add(new AbstractMap.SimpleEntry<>(randomString(random, 10), randomString(random, 100)));
             }
+        }
+
+        @Setup(Level.Iteration)
+        public void setupIteration() {
+            random = new Random(12345);
+            cache = CacheType.valueOf(cacheTypeName).create();
+            dataset.forEach(cache::put); // Hot set in cache
         }
 
         public Map.Entry<String, String> nextEntry() {
@@ -108,7 +109,7 @@ public class ConcurrentMixedPutGetBenchmarks {
     public static class State10k extends BaseState { public State10k() { super(10_000, 90); } }
 
     @Benchmark
-    public void mixedPutGet_100(State100 s, Blackhole bh) {
+    public void mixedPutGet1_100(State100 s, Blackhole bh) {
         var entry = s.nextEntry();
         String value = s.cache.get(entry.getKey());
         if (value == null) {
@@ -118,7 +119,7 @@ public class ConcurrentMixedPutGetBenchmarks {
     }
 
     @Benchmark
-    public void mixedPutGet_1k(State1k s, Blackhole bh) {
+    public void mixedPutGet2_1k(State1k s, Blackhole bh) {
         var entry = s.nextEntry();
         String value = s.cache.get(entry.getKey());
         if (value == null) {
@@ -128,24 +129,13 @@ public class ConcurrentMixedPutGetBenchmarks {
     }
 
     @Benchmark
-    public void mixedPutGet_10k(State10k s, Blackhole bh) {
+    public void mixedPutGet3_10k(State10k s, Blackhole bh) {
         var entry = s.nextEntry();
         String value = s.cache.get(entry.getKey());
         if (value == null) {
             s.cache.put(entry.getKey(), entry.getValue());
         }
         bh.consume(value);
-    }
-
-    public static void main(String[] args) throws RunnerException, IOException {
-        var optionsBuilder = new OptionsBuilder()
-                .include(ConcurrentMixedPutGetBenchmarks.class.getSimpleName())
-                .resultFormat(org.openjdk.jmh.results.format.ResultFormatType.JSON);
-        var dir = "target/jmh/ConcurrentMixedPutGetBenchmarks/";
-        Files.createDirectories(Path.of(dir));
-        for(var threads : List.of(1,2,4,8)) {
-            new Runner(optionsBuilder.threads(threads).output(dir + "jmh-threads" + threads + ".out").result(dir + "jmh-threads" + threads + ".json").build()).run();
-        }
     }
 
 }
