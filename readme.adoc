@@ -23,10 +23,10 @@ comparative results.
 
 visualizations using https://jmh.morethan.io/
 
-![Screenshot mixed bench with 1 thread](https://github.com/mjmbischoff/SieveElastic/blob/main/bench-thread1.png?raw=true)
+![Screenshot mixed bench with 1 thread](https://raw.githubusercontent.com/mjmbischoff/SieveElastic/refs/heads/main/bench-thread1.png)
 
-![Screenshot mixed bench with 2 thread](https://github.com/mjmbischoff/SieveElastic/blob/main/bench-thread2.png?raw=true)
+![Screenshot mixed bench with 2 thread](https://raw.githubusercontent.com/mjmbischoff/SieveElastic/refs/heads/main/bench-thread2.png)
 
-![Screenshot mixed bench with 4 thread](https://github.com/mjmbischoff/SieveElastic/blob/main/bench-thread4.png?raw=true)
+![Screenshot mixed bench with 4 thread](https://raw.githubusercontent.com/mjmbischoff/SieveElastic/refs/heads/main/bench-thread4.png)
 
-![Screenshot mixed bench with 8 thread](https://github.com/mjmbischoff/SieveElastic/blob/main/bench-thread8.png?raw=true)
+![Screenshot mixed bench with 8 thread](https://raw.githubusercontent.com/mjmbischoff/SieveElastic/refs/heads/main/bench-thread8.png)
