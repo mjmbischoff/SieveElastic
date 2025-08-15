@@ -1,21 +1,22 @@
-= Elastic LRUCache replacement using SIEVE and different approach to backing datastructures
+# Elastic LRUCache replacement using SIEVE and different approach to backing datastructures
 
-== Implementation
+## Implementation
 
 For simplicity, we rely on ConcurrentLinkedDeque and ConcurrentHashMap as backing datastructures. Perhaps greater
 performance can be squeezed by inlining, but this would require reimplementing said datastructures, which albeit fun,
 would make the code more complex, requires more review and testing for correctness.
 
-== Eviction
+## Eviction
 
 Departing from the Least Recently Used we use a 'sieve' to select entries for eviction instead.
 The Benchmarks included are microbenchmarks for put, get and invalidateAll. Testing of the eviction
 strategy requires more real world workloads in which case we should do comparative end-to-end tests
 with the code integrated into Elasticsearch for the full picture. We take the research and
-<a href="https://junchengyang.com/publication/nsdi24-SIEVE.pdf">paper</a> on SIEVE as a good enough basis to move
+[paper](https://junchengyang.com/publication/nsdi24-SIEVE.pdf) on SIEVE as a good enough basis to move
 forward.
 
-== Microbenchmark results
+## Microbenchmark results
+
 Below are pictures of the MixedPutGetBenchmark run. You should run your own benchmarks:tm: and micro benchmarks might
 not reflect in real workloads and other usual performance testing gotchas apply. The benchmarking was done on a not
 entirely 'clean' machine, as it was run on my laptop. But the results are consistent over many runs with respect to
@@ -23,10 +24,10 @@ comparative results.
 
 visualizations using https://jmh.morethan.io/
 
-![Screenshot mixed bench with 1 thread](https://raw.githubusercontent.com/mjmbischoff/SieveElastic/refs/heads/main/bench-thread1.png)
+![Screenshot mixed bench with 1 thread](bench-thread1.png)
 
-![Screenshot mixed bench with 2 thread](https://raw.githubusercontent.com/mjmbischoff/SieveElastic/refs/heads/main/bench-thread2.png)
+![Screenshot mixed bench with 2 thread](bench-thread2.png)
 
-![Screenshot mixed bench with 4 thread](https://raw.githubusercontent.com/mjmbischoff/SieveElastic/refs/heads/main/bench-thread4.png)
+![Screenshot mixed bench with 4 thread](bench-thread4.png)
 
-![Screenshot mixed bench with 8 thread](https://raw.githubusercontent.com/mjmbischoff/SieveElastic/refs/heads/main/bench-thread8.png)
+![Screenshot mixed bench with 8 thread](bench-thread8.png)
