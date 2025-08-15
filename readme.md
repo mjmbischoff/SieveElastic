@@ -20,7 +20,7 @@ forward.
 Below are pictures of the MixedPutGetBenchmark run. You should run your own benchmarks:tm: and micro benchmarks might
 not reflect in real workloads and other usual performance testing gotchas apply. The benchmarking was done on a not
 entirely 'clean' machine, as it was run on my laptop. But the results are consistent over many runs with respect to
-comparative results.
+comparative results. We compare agains the current implementation and a simple wrapper of ConcurrentHashMap.
 
 visualizations using https://jmh.morethan.io/
 
